@@ -1,0 +1,17 @@
+{
+    "PORT": 5000,
+    "MOVIEDB": {
+        "DELAY": 251,
+        "HOST": "https://api.themoviedb.org/3",
+        "IMGPATH": "https://image.tmdb.org/t/p/original",
+        "KEY": null,
+        "EP": {
+            "DETAILS": "/movie/@{id}",
+            "GENRES": "/genre/movie/list",
+            "POPULAR": "/movie/popular",
+            "RECOMMENDATIONS": "/movie/@{id}/recommendations",
+            "SEARCH": "/search/movie",
+            "STATUS": "/"
+        }
+    }
+}
