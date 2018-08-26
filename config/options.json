@@ -3,7 +3,7 @@
     "MOVIEDB": {
         "DELAY": 251,
         "HOST": "https://api.themoviedb.org/3",
-        "IMGPATH": "https://image.tmdb.org/t/p/original",
+        "IMGPATH": "https://image.tmdb.org/t/p/",
         "KEY": null,
         "EP": {
             "DETAILS": "/movie/@{id}",

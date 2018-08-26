@@ -8,8 +8,8 @@ const imgpath = config.get('MOVIEDB:IMGPATH');
 const fillMovie = genres => movie => {
     return {
         ...movie,
-        backdrop_path: imgpath + movie.backdrop_path,
-        poster_path: imgpath + movie.poster_path,
+        backdrop_path: imgpath + 'w1280' + movie.backdrop_path,
+        poster_path: imgpath + 'w185' + movie.poster_path,
         genres: movie.genre_ids
             .filter((id, pos) => movie.genre_ids.indexOf(id) === pos)
             .reduce((result, id) => {
