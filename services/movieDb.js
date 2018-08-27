@@ -3,14 +3,14 @@ const Promise = require('bluebird');
 const config = require('../config');
 const request = require('./request');
 
+const adult_ph = config.get('ADULTPH');
 const imgpath = config.get('MOVIEDB:IMGPATH');
-const adultPlaceholder = 'https://www.artstation.com/assets/adult-content-placeholder-5e7a7173ea331b6a487f7674b2ff2f4a.jpg';
 
 const fillMovie = genres => movie => {
     return {
         ...movie,
-        backdrop_path: movie.adult ? adultPlaceholder : imgpath + 'w1280' + movie.backdrop_path,
-        poster_path: movie.adult ? adultPlaceholder : imgpath + 'w185' + movie.poster_path,
+        backdrop_path: movie.adult ? adult_ph : imgpath + 'w1280' + movie.backdrop_path,
+        poster_path: movie.adult ? adult_ph : imgpath + 'w185' + movie.poster_path,
         genres: movie.genre_ids
             .filter((id, pos) => movie.genre_ids.indexOf(id) === pos)
             .reduce((result, id) => {

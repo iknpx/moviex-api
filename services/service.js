@@ -1,4 +1,3 @@
-const moment = require('moment');
 const MovieDb = require('./movieDb');
 
 class MoviesService {
@@ -14,36 +13,43 @@ class MoviesService {
     }
 
     getMovieDetails({ id }) {
-        MovieDb.getDetails(id)
-            .then(response => this.socket.emit('POST: MOVIE DETAILS', response))
-            .catch(error => this.socket.emit('POST: SERVER ERROR', error.message));
+        this.queue.push({
+            emit: 'POST: MOVIE DETAILS',
+            event: MovieDb.getDetails(id),
+            id: this.socket.id,
+        });
     }
 
     getPopularMovies({ page }) {
-        MovieDb.getPopular(page)
-            .then(response => this.socket.emit('POST: MOVIES', response))
-            .catch(error => this.socket.emit('POST: SERVER ERROR', error.message));
+        this.queue.push({
+            emit: 'POST: MOVIES',
+            event: MovieDb.getPopular(page),
+            id: this.socket.id,
+        });
     }
 
     getRecommendedMovies({ id, page }) {
-        MovieDb.getRecommendations(id, page)
-            .then(response => this.socket.emit('POST: RECOMMENDED', response))
-            .catch(error => this.socket.emit('POST: SERVER ERROR', error.message));
+        this.queue.push({
+            emit: 'POST: RECOMMENDED',
+            event: MovieDb.getRecommendations(id, page),
+            id: this.socket.id,
+        });
     }
 
     getServerStatus() {
-        MovieDb.getStatus()
-            .then(() => this.socket.emit('POST: SERVER STATUS', {
-                status: 'ok',
-                time: moment().format(),
-            }))
-            .catch(error => this.socket.emit('POST: SERVER ERROR', error.message));
+        this.queue.push({
+            emit: 'POST: SERVER STATUS',
+            event: MovieDb.getStatus(),
+            id: this.socket.id,
+        });
     }
 
     searchMovies({ page, query }) {
-        MovieDb.search(page, query)
-            .then(response => this.socket.emit('POST: MOVIES', response))
-            .catch(error => this.socket.emit('POST: SERVER ERROR', error.message));
+        this.queue.push({
+            emit: 'POST: MOVIES',
+            event: MovieDb.search(page, query),
+            id: this.socket.id,
+        });
     }
 }
 
@@ -56,12 +62,3 @@ module.exports =  queue => socket => {
     socket.on('GET: SERVER STATUS', service.getServerStatus);
     socket.on('GET: SEARCH MOVIES', service.searchMovies);
 };
-
-/*
-POST: SERVER STATUS
-POST: SERVER ERROR
-
-POST: MOVIE DETAILS
-POST: MOVIES
-POST: RECOMMENDED
- */
