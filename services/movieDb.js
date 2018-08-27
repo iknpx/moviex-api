@@ -49,6 +49,7 @@ class MovieDb {
             .then(({ data, genresResponse: { genres } }) => ({
                 ...data,
                 results: data.results.map(fillMovie(genres)),
+                search: false,
             }));
     }
 
@@ -79,6 +80,7 @@ class MovieDb {
             .then(({ data, genresResponse: { genres } }) => ({
                 ...data,
                 results: data.results.map(fillMovie(genres)),
+                search: true,
             }));
     }
 }

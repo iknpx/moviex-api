@@ -20,7 +20,7 @@ class Queue {
     }
 
     next() {
-        if (this.queue > 0) {
+        if (this.queue.length > 0) {
             this.exec();
         } else {
             this.progress = false;
