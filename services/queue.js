@@ -1,5 +1,7 @@
-const Promise = require('bluebird');
+const util = require('util');
+
 const config = require('../config');
+const Promise = require('bluebird');
 
 class Queue {
     constructor(io) {
@@ -43,6 +45,8 @@ class Queue {
             })
             .catch(error => {
                 // TODO: handle error type & if 419 from moviedb service -> retry exec(task)!
+
+                process.stdout.write(util.inspect(error, false, 5, true) + '\n');
                 this.io.to(task.id).emit('POST: SERVER ERROR', error.message);
                 this.next();
             });

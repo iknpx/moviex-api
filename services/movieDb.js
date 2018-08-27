@@ -6,12 +6,12 @@ const request = require('./request');
 const adult_ph = config.get('ADULTPH');
 const imgpath = config.get('MOVIEDB:IMGPATH');
 
-const fillMovie = genres => movie => {
+const fillMovie = (genres = null) => movie => {
     return {
         ...movie,
         backdrop_path: movie.adult ? adult_ph : imgpath + 'w1280' + movie.backdrop_path,
         poster_path: movie.adult ? adult_ph : imgpath + 'w185' + movie.poster_path,
-        genres: movie.genre_ids
+        genres: genres ? movie.genre_ids
             .filter((id, pos) => movie.genre_ids.indexOf(id) === pos)
             .reduce((result, id) => {
                 const index = genres.findIndex(genre => genre.id === id);
@@ -19,7 +19,7 @@ const fillMovie = genres => movie => {
                 return index !== -1
                     ? [...result, genres[index]]
                     : [...result];
-            }, []),
+            }, []) : movie.genres,
     };
 };
 
@@ -31,7 +31,8 @@ class MovieDb {
 
     static getDetails(id) {
         return request()
-            .get(config.get('MOVIEDB:EP:DETAILS').replace('@{id}', id));
+            .get(config.get('MOVIEDB:EP:DETAILS').replace('@{id}', id))
+            .then(fillMovie());
     }
 
     static getGenres() {
