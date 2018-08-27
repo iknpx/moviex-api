@@ -19,8 +19,12 @@ const fillMovie = (genres = null) => movie => {
                 return index !== -1
                     ? [...result, genres[index]]
                     : [...result];
-            }, []) : movie.genres,
+            }, []) : filterGenres(movie.genres),
     };
+};
+
+const filterGenres = (genres) => {
+    return genres.filter((genre, pos) => genres.findIndex(i => i.id === genre.id) === pos);
 };
 
 class MovieDb {
