@@ -1,5 +1,7 @@
 const Promise = require('bluebird');
 
+const TorrentService = require('./torrents');
+
 const config = require('../config');
 const request = require('./request');
 
@@ -36,7 +38,17 @@ class MovieDb {
     static getDetails(id) {
         return request()
             .get(config.get('MOVIEDB:EP:DETAILS').replace('@{id}', id))
-            .then(fillMovie());
+            .then(movie => {
+                return Promise.props({
+                    movie,
+                    torrents: TorrentService.getTorrents(movie),
+                });
+            })
+            .then(({ movie, torrents }) => {
+                movie.torrents = torrents;
+
+                return fillMovie()(movie);
+            });
     }
 
     static getGenres() {

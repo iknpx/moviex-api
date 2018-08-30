@@ -1,7 +1,11 @@
-.idea
-*sublime*
-.DS_Store
 *.log
+*.lock
+*-lock.json
+*.torrent
+*sublime*
+
+.DS_Store
+.idea
 
 dist
 coverage
