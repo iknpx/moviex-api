@@ -22,7 +22,9 @@ const categories = [
 
 function addTorrentsRecords(id, torrents) {
     const data = torrents.map(torrent => ({
-        ...torrent,
+        id: torrent.id,
+        size: torrent.size,
+        title: torrent.title,
     }));
 
     return new Promise((resolve, reject) => {
