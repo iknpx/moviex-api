@@ -76,10 +76,12 @@ function getTorrentRecords(id) {
 function parseTorrenRecords(id, query) {
     return Promise.resolve()
         .then(() => rutracker.login({ username: TORRENT_USER, password: TORRENT_PASSWORD }))
-        .then(() => rutracker.search({ query, sort: 'size', order: 'asc' }))
-        .then(torrents => Promise.resolve(
-            torrents.filter(torrent => categories.includes(torrent.category)),
-        ))
+        .then(() => rutracker.search({ query, sort: 'size', order: 'desc' }))
+        .then(torrents => {
+            return Promise.resolve(
+                torrents.filter(torrent => categories.includes(torrent.category)),
+            );
+        })
         .then(torrents => Promise.all(
             torrents.map(torrent => Promise.props({
                 torrent,
