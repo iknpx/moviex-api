@@ -1,118 +1,26 @@
 const Promise = require('bluebird');
+const torrent = require('torrent-search-api');
 
-const fs = require('fs');
-const jsonfile = require('jsonfile');
-const path = require('path');
-const RutrackerApi = require('rutracker-api');
+const config = require('../config');
 
-const { TORRENT_USER, TORRENT_PASSWORD } = process.env;
-const destination = path.resolve(__dirname, '../torrents');
+/** Enable torrents providers */
+config.get('PROVIDERS')
+    .forEach(({ active, name }) => active ? torrent.enableProvider(name) : null);
 
-const rutracker = new RutrackerApi();
+class Torrent {
+    constructor() {
+        this.service = torrent;
+    }
 
-const categories = [
-    'Зарубежное кино (HD Video)',
-    'Зарубежное кино (DVD Video)',
-    'Фильмы 2018',
-    'Фильмы 2001-2005',
-    'Фильмы 2006-2010',
-    'Фильмы 2011-2015',
-    'Фильмы 2016-2017',
-    'Иностранные мультфильмы',
-    'Наше кино (HD Video)',
-    'Наше кино (DVD Video)',
-    'Наше кино',
-    'Иностранные мультфильмы (HD Video)',
-    'Иностранные мультфильмы (DVD Video)',
-];
-
-function addTorrentsRecords(id, torrents) {
-    const data = torrents.map(torrent => ({
-        id: torrent.id,
-        size: torrent.size,
-        title: torrent.title,
-    }));
-
-    return new Promise((resolve, reject) => {
-        jsonfile.readFile(
-            path.join(destination, 'data.json'),
-            (error, _) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                jsonfile.writeFile(
-                    path.join(destination, 'data.json'),
-                    { ..._, [id]: data },
-                    { spaces: 2 },
-                    error => {
-                        if (error) {
-                            return reject(error);
-                        }
-
-                        resolve(data);
-                    }
-                );
-            }
-        );
-    });
-}
-
-function getTorrentRecords(id) {
-    return new Promise((resolve, reject) => {
-        jsonfile.readFile(
-            path.join(destination, 'data.json'),
-            (error, data) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                const key = Object.keys(data).find(key => key === id.toString());
-
-                if (!key) {
-                    return resolve(null);
-                }
-
-                resolve(data[key]);
-            }
-        );
-    });
-}
-
-function parseTorrenRecords(id, query) {
-    return Promise.resolve()
-        .then(() => rutracker.login({ username: TORRENT_USER, password: TORRENT_PASSWORD }))
-        .then(() => rutracker.search({ query, sort: 'size', order: 'desc' }))
-        .then(torrents => {
-            return Promise.resolve(
-                torrents.filter(torrent => categories.includes(torrent.category)),
-            );
-        })
-        .then(torrents => Promise.all(
-            torrents.map(torrent => Promise.props({
-                torrent,
-                stream: rutracker.download(torrent.id),
-            }))
-        ))
-        .then(result => Promise.all(
-            result.map(data => Promise.props({
-                torrent: data.torrent,
-                stream: data.stream.pipe(fs.createWriteStream(
-                    path.join(destination, `${data.torrent.id}.torrent`),
-                )),
-            })),
-        ))
-        .then(result => Promise.resolve(
-            result.reduce((_, item) => [..._, item.torrent], []),
-        ))
-        .then(torrents => addTorrentsRecords(id, torrents));
-}
-
-class TorrentService {
-    static getTorrents({ id, original_title }) {
-        return getTorrentRecords(id)
-            .then(result => result || parseTorrenRecords(id, original_title));
+    search(query, limit = 10, category = 'All') {
+        return this.service.search(query, category, limit)
+            .then(torrents => Promise.all(
+                torrents.map(torrent => Promise.props({
+                    ...torrent,
+                    magnet: this.service.getMagnet(torrent),
+                })),
+            ));
     }
 }
 
-module.exports = TorrentService;
+module.exports = Torrent;

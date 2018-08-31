@@ -1,37 +1,49 @@
-const MovieDb = require('./movieDb');
+const Movie = require('./movie');
+const Torrents = require('./torrents');
 
-class MoviesService {
+class ApplicationService {
     constructor(queue, socket) {
+        /** Application queue */
         this.queue = queue;
+
+        /** Socket service */
         this.socket = socket;
 
-        this.getMovieDetails = this.getMovieDetails.bind(this);
-        this.getPopularMovies = this.getPopularMovies.bind(this);
-        this.getRecommendedMovies = this.getRecommendedMovies.bind(this);
+        /** Movie service */
+        this.movie = new Movie();
+
+        /** Torrents service */
+        this.torrents = new Torrents();
+
+        /** Class bindings */
+        this.fetchMovieDetails = this.fetchMovieDetails.bind(this);
+        this.fetchMoviesList = this.fetchMoviesList.bind(this);
+        this.fetchRecommendedMoviesList = this.fetchRecommendedMoviesList.bind(this);
         this.getServerStatus = this.getServerStatus.bind(this);
         this.searchMovies = this.searchMovies.bind(this);
+        this.getTorrents = this.getTorrents.bind(this);
     }
 
-    getMovieDetails({ id }) {
-        this.queue.push({
-            emit: 'POST: MOVIE DETAILS',
-            event: MovieDb.getDetails(id),
-            id: this.socket.id,
-        });
-    }
-
-    getPopularMovies({ page }) {
+    fetchMoviesList({ page }) {
         this.queue.push({
             emit: 'POST: MOVIES',
-            event: MovieDb.getPopular(page),
+            event: this.movie.fetchMoviesList(page),
             id: this.socket.id,
         });
     }
 
-    getRecommendedMovies({ id, page }) {
+    fetchMovieDetails({ id }) {
+        this.queue.push({
+            emit: 'POST: MOVIE DETAILS',
+            event: this.movie.fetchMovieDetails(id),
+            id: this.socket.id,
+        });
+    }
+
+    fetchRecommendedMoviesList({ id, page }) {
         this.queue.push({
             emit: 'POST: RECOMMENDED',
-            event: MovieDb.getRecommendations(id, page),
+            event: this.movie.fetchRecommendedMoviesList(id, page),
             id: this.socket.id,
         });
     }
@@ -39,7 +51,7 @@ class MoviesService {
     getServerStatus() {
         this.queue.push({
             emit: 'POST: SERVER STATUS',
-            event: MovieDb.getStatus(),
+            event: this.movie.getServerStatus(),
             id: this.socket.id,
         });
     }
@@ -47,18 +59,27 @@ class MoviesService {
     searchMovies({ page, query }) {
         this.queue.push({
             emit: 'POST: MOVIES',
-            event: MovieDb.search(page, query),
+            event: this.movie.searchMovies(query, page),
+            id: this.socket.id,
+        });
+    }
+
+    getTorrents({ query, limit, category }) {
+        this.queue.push({
+            emit: 'POST: TORRENTS',
+            event: this.torrents.search(query, limit, category),
             id: this.socket.id,
         });
     }
 }
 
-module.exports =  queue => socket => {
-    const service = new MoviesService(queue, socket);
+module.exports = queue => socket => {
+    const service = new ApplicationService(queue, socket);
 
-    socket.on('GET: MOVIE DETAILS', service.getMovieDetails);
-    socket.on('GET: POPULAR MOVIES', service.getPopularMovies);
-    socket.on('GET: RECOMMENDED MOVIES', service.getRecommendedMovies);
-    socket.on('GET: SERVER STATUS', service.getServerStatus);
+    socket.on('GET: MOVIE DETAILS', service.fetchMovieDetails);
+    socket.on('GET: POPULAR MOVIES', service.fetchMoviesList);
+    socket.on('GET: RECOMMENDED MOVIES', service.fetchRecommendedMoviesList);
     socket.on('GET: SEARCH MOVIES', service.searchMovies);
+    socket.on('GET: SERVER STATUS', service.getServerStatus);
+    socket.on('GET: TORRENTS', service.getTorrents);
 };

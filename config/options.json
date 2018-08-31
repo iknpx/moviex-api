@@ -1,18 +1,42 @@
 {
     "ADULTPH": "https://www.artstation.com/assets/adult-content-placeholder-5e7a7173ea331b6a487f7674b2ff2f4a.jpg",
     "PORT": 5000,
+    "DELAY": 150,
     "MOVIEDB": {
-        "DELAY": 251,
         "HOST": "https://api.themoviedb.org/3",
         "IMGPATH": "https://image.tmdb.org/t/p/",
         "KEY": null,
         "EP": {
             "DETAILS": "/movie/@{id}",
-            "GENRES": "/genre/movie/list",
             "POPULAR": "/movie/popular",
             "RECOMMENDATIONS": "/movie/@{id}/recommendations",
             "SEARCH": "/search/movie",
             "STATUS": "/"
         }
-    }
+    },
+    "PROVIDERS": [{
+        "name": "1337x",
+        "active": true
+    }, {
+        "name": "ExtraTorrent",
+        "active": false
+    }, {
+        "name": "KickassTorrents",
+        "active": false
+    }, {
+        "name": "Rarbg",
+        "active": false
+    }, {
+        "name": "ThePirateBay",
+        "active": false
+    }, {
+        "name": "Torrent9",
+        "active": false
+    }, {
+        "name": "TorrentProject",
+        "active": false
+    }, {
+        "name": "Torrentz2",
+        "active": false
+    }]
 }
