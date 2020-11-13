@@ -7,6 +7,5 @@
 .DS_Store
 .idea
 
-dist
-coverage
+_
 node_modules
