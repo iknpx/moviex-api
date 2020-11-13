@@ -8,4 +8,4 @@
 .idea
 
 _
-node_modules
+/target
